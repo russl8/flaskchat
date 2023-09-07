@@ -1,10 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 from flask_socketio import join_room, leave_room, send, SocketIO
-import random as rand
-from string import ascii_uppercase
 import os
 from dotenv import load_dotenv
-
 from flask_sqlalchemy import SQLAlchemy
 
 # room code
@@ -12,7 +9,6 @@ ROOM_CODE = "myRoom"
 
 # load environment variables
 load_dotenv()
-
 
 # initialize flask and socketio
 app = Flask(__name__)
@@ -32,6 +28,8 @@ db = SQLAlchemy(app)
     from main import db
     db.create_all()
 """
+
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -64,17 +62,17 @@ def login():
             return render_template("login.html", error="Please enter a name!")
 
         # check if the user already exists in database
-        existing_user = User.query.filter_by(name=name).first()
+        existingUser = User.query.filter_by(name=name).first()
 
-        if existing_user:
+        if existingUser:
             # set the user's name in the session because the user already exists
             session["name"] = name
             print("user exists already")
             return redirect(url_for("chat"))
         else:
             # create a new user instance in the database, since user does not exist
-            new_user = User(name)
-            db.session.add(new_user)
+            newUser = User(name)
+            db.session.add(newUser)
             db.session.commit()
 
             # set the user's name in session
@@ -90,6 +88,9 @@ def chat():
     # redriect user to login if they are not signed in.
     if sessionName is None:
         return redirect(url_for("login"))
+    
+
+    # return render_template with the messages from DB
 
     return render_template("chat.html")
 
@@ -118,12 +119,27 @@ def socketDisconnect():
 @socketio.on("message")
 def handleUserSendMessage(formData):
     sessionName = session.get("name")
+    # make sure sessionname exists
+    if sessionName is None or not sessionName:
+        return
 
     content = {
         "name": sessionName,
         "message": formData["content"],
         "dateSent": formData["dateSent"]
     }
+
+
+    # get userid
+    user = User.query.filter_by(name=sessionName).first()
+    userid = user.id
+
+    # save message to db
+    newMessage = Message( content["message"], content["dateSent"],userid)
+    db.session.add(newMessage)
+    db.session.commit()
+
+
     # send message to room. forces message event
     send(content, to=ROOM_CODE)
 
