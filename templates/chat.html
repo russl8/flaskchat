@@ -15,6 +15,7 @@
 
 <script type="text/javascript">
   let socketio = io();
+  let msgSender;
   const sessionName = "{{ session.get('name') }}";
   const allMessages = document.getElementById("messages");
 
@@ -24,7 +25,7 @@
     const htmlMessage = `
       <div>
         <span>
-          <b>${name} </b>: ${msg}   
+          ${name === sessionName ? `<b>${sessionName}</b>` : name} : ${msg}   
         </span>
         <span>
           <i>${dateSent}</i>
@@ -45,7 +46,7 @@
 
     if (message === "") return;
 
-    
+
     //make a new message event
     socketio.emit("message", {
       content: message.value,
@@ -63,7 +64,14 @@
 
 {%for msg in allMessages%}
 <script type="text/javascript">
-  addMessageToHtml("{{msg.name}}", "{{msg.message}}", "{{msg.dateSent}}")
+  msgSender = "{{msg[1]}}"
+  addMessageToHtml(
+    msgSender === sessionName ?
+    `<b>${msgSender}</b>` :
+    msgSender,
+    "{{msg[0].message}}",
+    "{{msg[0].dateCreated}}"
+  )
 </script>
 {%endfor%}
 {%endblock%}

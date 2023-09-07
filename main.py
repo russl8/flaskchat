@@ -88,11 +88,13 @@ def chat():
     # redriect user to login if they are not signed in.
     if sessionName is None:
         return redirect(url_for("login"))
-    
 
     # return render_template with the messages from DB
+    # allMessages becomes an array with tuples (name, {messagecontents})
+    allMessages = db.session.query(Message, User.name).join(User).all()
+    
 
-    return render_template("chat.html")
+    return render_template("chat.html", allMessages=allMessages)
 
 
 @socketio.on("connect")
@@ -129,16 +131,14 @@ def handleUserSendMessage(formData):
         "dateSent": formData["dateSent"]
     }
 
-
     # get userid
     user = User.query.filter_by(name=sessionName).first()
     userid = user.id
 
     # save message to db
-    newMessage = Message( content["message"], content["dateSent"],userid)
+    newMessage = Message(content["message"], content["dateSent"], userid)
     db.session.add(newMessage)
     db.session.commit()
-
 
     # send message to room. forces message event
     send(content, to=ROOM_CODE)
