@@ -24,6 +24,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("PSQL_URI")
 db = SQLAlchemy(app)
 
 
+"""
+    DATABASE SCHEMAS.
+    TO CREATE:
+
+    python
+    from main import db
+    db.create_all()
+"""
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -44,9 +52,6 @@ class Message(db.Model):
         self.message = message
         self.dateCreated = dateCreated
         self.user_id = user_id
-
-
-
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -89,17 +94,38 @@ def chat():
     return render_template("chat.html")
 
 
-
 @socketio.on("connect")
 def socketConnect():
     sessionName = session.get("name")
 
     # make sure sessionname actually exists
-    if not sessionName : return
+    if not sessionName or sessionName is None:
+        return
 
+    # join the room
     join_room(ROOM_CODE)
-    print(sessionName + " has joined the room")
 
+
+@socketio.on("disconnect")
+def socketDisconnect():
+    sessionName = session.get("name")
+    leave_room(ROOM_CODE)
+
+    # send message to room. forces message event
+    print(f"{sessionName} has left the room ")
+
+
+@socketio.on("message")
+def handleUserSendMessage(formData):
+    sessionName = session.get("name")
+
+    content = {
+        "name": sessionName,
+        "message": formData["content"],
+        "dateSent": formData["dateSent"]
+    }
+    # send message to room. forces message event
+    send(content, to=ROOM_CODE)
 
 
 if __name__ == "__main__":

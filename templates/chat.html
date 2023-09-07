@@ -14,6 +14,56 @@
 </div>
 
 <script type="text/javascript">
-    let socketio = io();
+  let socketio = io();
+  const sessionName = "{{ session.get('name') }}";
+  const allMessages = document.getElementById("messages");
+
+
+  const addMessageToHtml = (name, msg, dateSent) => {
+    if (msg === "") return
+    const htmlMessage = `
+      <div>
+        <span>
+          <b>${name} </b>: ${msg}   
+        </span>
+        <span>
+          <i>${dateSent}</i>
+        </span>
+      </div>
+    `;
+    allMessages.innerHTML += htmlMessage;
+
+  }
+
+
+  //send message object to server.
+  //the server process this message in socketio.on("message")
+  const handleSendMessage = () => {
+    //get message input box value
+    const message = document.getElementById("message");
+    const dateSent = new Date().toLocaleString()
+
+    if (message === "") return;
+
+    
+    //make a new message event
+    socketio.emit("message", {
+      content: message.value,
+      dateSent: dateSent,
+      sender: sessionName
+    })
+    message.value = ""
+  }
+
+
+  socketio.on("message", (data) => {
+    addMessageToHtml(data.name, data.message, data.dateSent || new Date().toLocaleString())
+  })
 </script>
+
+{%for msg in allMessages%}
+<script type="text/javascript">
+  addMessageToHtml("{{msg.name}}", "{{msg.message}}", "{{msg.dateSent}}")
+</script>
+{%endfor%}
 {%endblock%}
