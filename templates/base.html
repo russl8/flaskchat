@@ -1,15 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- provides io() function -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- provides io() function -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
 </head>
-<body>
-    {%block content%}
+<header>
+  <div>
+    app
+  </div>
 
-    {%endblock%}
+  <div>
+    <button onclick="handleChatButton()">
+      Chat
+    </button>
+
+    <button onclick="handleHistoryButton()">
+      History
+    </button>
+
+    <button onclick="handleLogoutButton()">
+      Logout
+    </button>
+  </div>
+
+</header>
+
+<body>
+  {%block content%}
+
+  {%endblock%}
 </body>
+
+<script type="text/javascript">
+  const handleChatButton = () => {
+    //take user to /chat
+    window.location.href = '/chat';
+  }
+
+  const handleHistoryButton = () => {
+    //take user to /history
+    window.location.href = '/history';
+  }
+
+  const handleLogoutButton = () => {
+    //take user to /logout
+    window.location.href = "/logout";
+  }
+</script>
+
 </html>

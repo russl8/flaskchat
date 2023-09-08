@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
 
-# initialize database.
+# Database Operations -----------------------------------------------------------------------------
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("PSQL_URI")
 db = SQLAlchemy(app)
 
@@ -52,8 +52,15 @@ class Message(db.Model):
         self.user_id = user_id
 
 
+# ROUTES --------------------------------------------------------------------------------------
 @app.route("/", methods=["GET", "POST"])
 def login():
+    sessionName = session.get("name")
+
+    # if a logged in user tries to go back to login page, redirect them to the chat page.
+    if sessionName:
+        return redirect(url_for("chat"))
+
     if request.method == "POST":
         name = request.form["name"]
 
@@ -92,11 +99,27 @@ def chat():
     # return render_template with the messages from DB
     # allMessages becomes an array with tuples (name, {messagecontents})
     allMessages = db.session.query(Message, User.name).join(User).all()
-    
 
     return render_template("chat.html", allMessages=allMessages)
 
 
+@app.route("/history")
+def history():
+    sessionName = session.get("name")
+
+    # redriect user to login if they are not signed in.
+    if sessionName is None:
+        return redirect(url_for("login"))
+
+    # get all user messages and pass it to render template
+    allMessages = db.session.query(Message, User.name).join(User).all()
+    filteredMessages = [(message, user_name) for message, user_name in allMessages if user_name == sessionName]
+
+
+    return render_template("history.html",allUserMessages=filteredMessages)
+
+
+# SOCKETIO EVENTS ------------------------------------------------------------
 @socketio.on("connect")
 def socketConnect():
     sessionName = session.get("name")
