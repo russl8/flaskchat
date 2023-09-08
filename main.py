@@ -115,9 +115,14 @@ def history():
     allMessages = db.session.query(Message, User.name).join(User).all()
     filteredMessages = [(message, user_name) for message, user_name in allMessages if user_name == sessionName]
 
-
     return render_template("history.html",allUserMessages=filteredMessages)
 
+@app.route("/logout")
+def logout():
+    sessionName = session.get("name")
+    session["name"] = None
+    
+    return redirect(url_for("login"))
 
 # SOCKETIO EVENTS ------------------------------------------------------------
 @socketio.on("connect")

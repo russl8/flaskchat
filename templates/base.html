@@ -13,18 +13,8 @@
     app
   </div>
 
-  <div>
-    <button onclick="handleChatButton()">
-      Chat
-    </button>
+  <div id="loginButtons">
 
-    <button onclick="handleHistoryButton()">
-      History
-    </button>
-
-    <button onclick="handleLogoutButton()">
-      Logout
-    </button>
   </div>
 
 </header>
@@ -49,6 +39,27 @@
   const handleLogoutButton = () => {
     //take user to /logout
     window.location.href = "/logout";
+  }
+
+
+  const loginButtons = document.getElementById("loginButtons");
+  let sessionUser = "{{ session.get('name') }}";
+  console.log(sessionUser)
+  if (sessionUser && sessionUser != "None") {
+    loginButtons.innerHTML +=
+      `    
+  <button onclick="handleChatButton()">
+    Chat
+  </button>
+
+  <button onclick="handleHistoryButton()">
+    History
+  </button>
+
+  <button onclick="handleLogoutButton()">
+    Logout
+  </button>
+  `
   }
 </script>
 
