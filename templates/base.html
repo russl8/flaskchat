@@ -6,11 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- provides io() function -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <link rel="stylesheet" href="../static/css/main.css" />
 
 </head>
 <header>
   <div>
-    app
+    <h1 class="baseHeading">Chat App</h1>
   </div>
 
   <div id="loginButtons">
@@ -48,15 +49,15 @@
   if (sessionUser && sessionUser != "None") {
     loginButtons.innerHTML +=
       `    
-  <button onclick="handleChatButton()">
+  <button onclick="handleChatButton()" class='navButton'">
     Chat
   </button>
 
-  <button onclick="handleHistoryButton()">
+  <button onclick="handleHistoryButton()" class='navButton'>
     History
   </button>
 
-  <button onclick="handleLogoutButton()">
+  <button onclick="handleLogoutButton()" class='navButton'>
     Logout
   </button>
   `

@@ -1,13 +1,13 @@
 {%extends "base.html"%}
 {%block content%}
 
-<div class="message-box">
-  <h2>Chat room: {{code}}</h2>
+<div class="chat">
+  <h1>Chat Room</h1>
   <div class="messages" id="messages"> </div>
 
   <div class="inputs">
-    <input type="text" rows="3" placeholder="Message" name="message" id="message" />
-    <button type="button" name="send" id="send-btn" onClick="handleSendMessage()">
+    <input type="text" rows="3" placeholder="Message" name="message" class="messageInput" id="message" />
+    <button type="button" name="send" id="send-btn" class="sendMessage" onClick="handleSendMessage()">
       Send
     </button>
   </div>
@@ -34,6 +34,7 @@
       </div>
     `;
     allMessages.innerHTML += htmlMessage;
+    messages.scrollTop = messages.scrollHeight;
 
   }
 
@@ -43,6 +44,9 @@
   const handleSendMessage = () => {
     //get message input box value
     const message = document.getElementById("message");
+
+    const messages = document.getElementById("messages")
+
     const dateSent = new Date().toLocaleString()
 
     if (message === "") return;

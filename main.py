@@ -53,6 +53,15 @@ class Message(db.Model):
 
 
 # ROUTES --------------------------------------------------------------------------------------
+
+"""
+Home Route.
+Retrieves the session user, then 
+Renders the chat page if a session user exists. Otherwise, render the login page.
+Logs user in by adding username to database and session,
+"""
+
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     sessionName = session.get("name")
@@ -89,6 +98,12 @@ def login():
     return render_template("login.html")
 
 
+"""
+Gets the session username to make sure user is logged in.
+ If so, render all esisting messages from database and the chat page.
+"""
+
+
 @app.route("/chat")
 def chat():
     sessionName = session.get("name")
@@ -103,6 +118,12 @@ def chat():
     return render_template("chat.html", allMessages=allMessages)
 
 
+"""
+Get the user messages only. (from database)
+then render a page with only user messages
+"""
+
+
 @app.route("/history")
 def history():
     sessionName = session.get("name")
@@ -113,18 +134,33 @@ def history():
 
     # get all user messages and pass it to render template
     allMessages = db.session.query(Message, User.name).join(User).all()
-    filteredMessages = [(message, user_name) for message, user_name in allMessages if user_name == sessionName]
+    filteredMessages = [(message, user_name) for message,
+                        user_name in allMessages if user_name == sessionName]
 
-    return render_template("history.html",allUserMessages=filteredMessages)
+    return render_template("history.html", allUserMessages=filteredMessages)
+
+
+"""
+Removes the sesssion user and redirects user to login page.
+
+"""
+
 
 @app.route("/logout")
 def logout():
     sessionName = session.get("name")
     session["name"] = None
-    
+
     return redirect(url_for("login"))
 
 # SOCKETIO EVENTS ------------------------------------------------------------
+
+
+"""
+    Joins a room if a session user exists.
+"""
+
+
 @socketio.on("connect")
 def socketConnect():
     sessionName = session.get("name")
@@ -137,6 +173,11 @@ def socketConnect():
     join_room(ROOM_CODE)
 
 
+"""
+    leaves the session room. logs to console.
+"""
+
+
 @socketio.on("disconnect")
 def socketDisconnect():
     sessionName = session.get("name")
@@ -144,6 +185,14 @@ def socketDisconnect():
 
     # send message to room. forces message event
     print(f"{sessionName} has left the room ")
+
+
+"""
+    Get the session name to make sure an actual user is sending a message.
+    Then a content dictionary with the message content is created.
+    The message is then added to the messages table in postgres.
+    After, send the nessage to the room, prompting the client-side code to add the message to the page.
+"""
 
 
 @socketio.on("message")

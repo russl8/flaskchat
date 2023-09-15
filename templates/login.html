@@ -1,12 +1,12 @@
 {%extends 'base.html'%}
 {%block content%}
 
-<form method="post">
-
-    <label for="name">Name</label>
-    <input placeholder="Enter a name" type="text" name="name"/>
-
-    <button type="submit">Join</button>
+<form method="post" class="loginPage">
+    <div class="loginInputs">
+        <input placeholder="Enter a name" type="text" name="name" class="nameInput"/>
+        <button type="submit" class="joinRoom">Join</button>
+    </div>
+  
 </form>
 
 {%if error%}
