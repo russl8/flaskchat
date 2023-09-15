@@ -220,6 +220,6 @@ def handleUserSendMessage(formData):
     # send message to room. forces message event
     send(content, to=ROOM_CODE)
 
-
+    print("sent message!")
 if __name__ == "__main__":
     socketio.run(app, debug=True)
